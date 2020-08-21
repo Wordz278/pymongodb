@@ -2,15 +2,16 @@ from pymongo import *
 from mongoengine import *
 from datetime import *
 from time import *
+import os
 
 # Connection to the DB
 connect(
     db="UmuziProspects",
-    username="root",
-    password="pass",
-    authentication_source="admin",
-    host="localhost",
-    port=27017
+    username=os.environ.get("USERNAME"),
+    password=os.environ.get("PASSWORD"),
+    authentication_source=os.environ.get("AUTHENTICATION"),
+    host=os.environ.get("HOST"),
+    port=int(os.environ.get("PORT"))
 )
 
 # Visitor Collection Schema
@@ -21,6 +22,7 @@ class Visiter(Document):
     time_of_visit = StringField()
     assisted_by = StringField()
     comments = StringField()
+
 
 # Create a visiter
 def create_visiter(name, age, assisted_by, comments):
@@ -34,12 +36,13 @@ def create_visiter(name, age, assisted_by, comments):
             date_of_visit=date.today(),
             time_of_visit=current_time,
             assisted_by=assisted_by,
-            comments=comments
+            comments=comments,
         )
         visiter.save()
         return f"Visiter Created"
     except:
         return f"Error creating a visiter."
+
 
 # Return all Visiters
 def list_visiters():
@@ -47,18 +50,21 @@ def list_visiters():
         visiters = Visiter.objects()
         visiters_list = []
         for visiter in visiters:
-            visiters_list.append({
-                "id": visiter.id,
-                "name": visiter.name,
-                "age": visiter.age,
-                "date_of_visit": visiter.date_of_visit,
-                "time_of_visit": visiter.time_of_visit,
-                "assisted_by": visiter.assisted_by,
-                "comments": visiter.comments
-            })
+            visiters_list.append(
+                {
+                    "id": visiter.id,
+                    "name": visiter.name,
+                    "age": visiter.age,
+                    "date_of_visit": visiter.date_of_visit,
+                    "time_of_visit": visiter.time_of_visit,
+                    "assisted_by": visiter.assisted_by,
+                    "comments": visiter.comments,
+                }
+            )
         return visiters_list
     except DoesNotExist:
         return f"Something went wrong when retreving the data"
+
 
 # Return a single visiter
 def single_visiter(id):
@@ -71,7 +77,7 @@ def single_visiter(id):
             "date_of_visit": visiter.date_of_visit,
             "time_of_visit": visiter.time_of_visit,
             "assisted_by": visiter.assisted_by,
-            "comments": visiter.comments
+            "comments": visiter.comments,
         }
         return visiter
     except DoesNotExist:
@@ -82,15 +88,12 @@ def single_visiter(id):
 def update_visiter(id, name, assisted_by, comments):
     try:
         visiter = Visiter.objects(id=id).get()
-        visiter.update(
-            name=name,
-            assisted_by=assisted_by,
-            comments=comments
-        )
+        visiter.update(name=name, assisted_by=assisted_by, comments=comments)
         visiter.reload()
         return f"Vister details updated"
     except DoesNotExist:
         return f"Visiter not found"
+
 
 # Delete a single visiter
 def delete_visiter(id):
@@ -100,6 +103,7 @@ def delete_visiter(id):
         return f"Visiter details deleted"
     except DoesNotExist:
         return f"Visiter not found"
+
 
 # delete all visiters
 def delete_all_visiters():
@@ -123,18 +127,18 @@ if __name__ == "__main__":
     print(visiters_list)
 
     # list single visiter
-    # single_visiter = single_visiter("5eaf48e9f9b76473d131b439")
+    # single_visiter = single_visiter("5eaf6e42281f06e890656ee6")
     # print(" == === Single Visiter Search == ===")
     # print(single_visiter)
 
     # update Visiter
     # visiter_update = update_visiter(
-    #     "5eaf48e9f9b76473d131b439", "Wordz", "Rivoningo Khoza", "Details Updated")
+    #     "5eaf6e42281f06e890656ee6", "Bongo", "Adrian", "Changed name to Bongo")
     # print(" == === Update Visiter Details == ===")
     # print(visiter_update)
 
     # Delete Single Visiter
-    # delete_visiter = delete_visiter("5eaf48bfe4d6248e22c0a7dc")
+    # delete_visiter = delete_visiter("5eaf6e42281f06e890656ee6")
     # print(" == === Delete Visiter Details == ===")
     # print(delete_visiter)
 
